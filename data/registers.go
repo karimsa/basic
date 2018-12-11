@@ -4,33 +4,157 @@
 
 package data
 
+import (
+	"fmt"
+	"math"
+)
+
+type regMode uint8
+
+const (
+	none regMode = iota
+	load
+	inr
+	clr
+)
+
+type Register struct {
+	bitmask uint16
+	buffer  uint16
+	mode    regMode
+}
+
+func newRegister(size float64) *Register {
+	return &Register{
+		bitmask: uint16(math.Pow(2, size) - 1),
+		buffer:  0,
+		mode:    none,
+	}
+}
+
+func (r *Register) Load() {
+	r.mode = load
+}
+
+func (r *Register) Inr() {
+	r.mode = inr
+}
+
+func (r *Register) Clr() {
+	r.mode = clr
+}
+
+func (r *Register) set(v uint16) {
+	r.buffer = v & r.bitmask
+}
+
+func (r *Register) tick(v uint16) {
+	switch r.mode {
+	case load:
+		r.set(v)
+
+	case inr:
+		r.set(r.buffer + 1)
+
+	case clr:
+		r.buffer = 0
+	}
+}
+
 var (
 	// DR is the data register - it holds the memory operand
-	DR uint16
+	DR = newRegister(16)
 
 	// AC is the accumulator - the processor register
-	AC uint16
+	AC = newRegister(16)
 
-	// E is the single carry bit - so using a bool to represent it
-	E bool
+	// E is the single carry bit
+	E = newRegister(1)
 
 	// IR is the instruction register - it holds the instruction code
-	IR uint16
+	IR = newRegister(16)
 
 	// TR is the temporary register - for temp bits
-	TR uint16
+	TR = newRegister(16)
 
 	// AR is the address register - it holds the address for memory
-	// (actually 12-bits)
-	AR uint16
+	AR = newRegister(12)
 
 	// PC is the program counter - it holds the address of the instruction
-	// (actually 12-bits)
-	PC uint16
+	PC = newRegister(12)
 
 	// INPR is the input register - it holds the input char
-	INPR uint8
+	INPR = newRegister(8)
 
 	// OUTR is the output register - it holds the output char
-	OUTR uint8
+	OUTR = newRegister(8)
 )
+
+var (
+	busRegisters = []*Register{
+		// these registers read right off the bus
+		DR, IR, TR, AR, PC, OUTR,
+
+		// these are hard-wired to the ALU, so skipped
+		// AC, E,
+
+		// INPR is hard-wired to the input device
+		// INPR,
+	}
+)
+
+func RegTick() {
+	busValue := BusRead()
+
+	// though the clock is not actually connected to
+	// the ALU, the shifting of the data in the registers
+	// will cause the ALU content to change and therefore
+	// it is a part of the 'RegTick' process
+	ac, e := aluTick()
+
+	for _, reg := range busRegisters {
+		reg.tick(busValue)
+
+		// auto-reset after pulse
+		reg.mode = none
+	}
+
+	// manually tick on the AC - since it has selector
+	// pins, we just tick and not set
+	AC.tick(ac)
+	AC.mode = none
+
+	// set the value of E - it is not selected, always loads
+	E.set(e)
+}
+
+func prettyMode(m regMode) string {
+	switch m {
+	case none:
+		return "off"
+
+	case load:
+		return "load"
+
+	case inr:
+		return "incr"
+
+	case clr:
+		return "clr"
+
+	default:
+		return "unknown"
+	}
+}
+
+func RegDump() {
+	fmt.Printf("DR: %#v (%s)\n", DR.buffer, prettyMode(DR.mode))
+	fmt.Printf("AC: %#v (%s)\n", AC.buffer, prettyMode(AC.mode))
+	fmt.Printf("E: %#v (%s)\n", E.buffer, prettyMode(E.mode))
+	fmt.Printf("IR: %#v (%s)\n", IR.buffer, prettyMode(IR.mode))
+	fmt.Printf("TR: %#v (%s)\n", TR.buffer, prettyMode(TR.mode))
+	fmt.Printf("AR: %#v (%s)\n", AR.buffer, prettyMode(AR.mode))
+	fmt.Printf("PC: %#v (%s)\n", PC.buffer, prettyMode(PC.mode))
+	fmt.Printf("INPR: %#v (%s)\n", INPR.buffer, prettyMode(INPR.mode))
+	fmt.Printf("OUTR: %#v (%s)\n", OUTR.buffer, prettyMode(OUTR.mode))
+}
