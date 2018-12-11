@@ -6,14 +6,26 @@
 package clock
 
 import (
-	"github.com/karimsa/basic/alu"
-	"github.com/karimsa/basic/utils"
+	"fmt"
+
+	"github.com/karimsa/basic/data"
+	"github.com/karimsa/basic/debug"
 )
 
 func Tick() {
-	wg := utils.WaitGroup{}
-	wg.Add(func() {
-		alu.Tick()
-	})
-	wg.Wait()
+	if debug.Clock {
+		fmt.Println("-------------------")
+		fmt.Printf("before clock tick:\n")
+		data.RegDump()
+		fmt.Println("-------------------")
+	}
+
+	data.RegTick()
+
+	if debug.Clock {
+		fmt.Println("-------------------")
+		fmt.Printf("after clock tick:\n")
+		data.RegDump()
+		fmt.Println("-------------------")
+	}
 }
