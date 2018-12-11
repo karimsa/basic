@@ -5,10 +5,10 @@
 package program
 
 import (
-	"errors"
 	"os"
 
 	"github.com/karimsa/basic/constants"
+	"github.com/karimsa/basic/data"
 )
 
 var (
@@ -45,19 +45,17 @@ func NewProgram(fpath string) (*Program, error) {
 }
 
 func (p *Program) Load() {
-	// addr := 0
+	addr := 0
 
-	// for {
-	// 	word, ok := p.readWord()
-	// 	if !ok {
-	// 		return
-	// 	}
+	for {
+		word, ok := p.readWord()
+		if !ok {
+			return
+		}
 
-	// 	cpu.SetMemWord(addr, word)
-	// 	addr++
-	// }
-
-	panic(errors.New("Load not yet implemented"))
+		data.UnsafeMemWrite(addr, word)
+		addr++
+	}
 }
 
 func (p *Program) readWord() (uint16, bool) {
