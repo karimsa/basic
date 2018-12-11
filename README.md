@@ -18,6 +18,12 @@ The CPU has 9 registers and a 4096x16 memory unit. The breakdown is from the lec
 
 ![](.github/registers.png)
 
+### Instruction set
+
+Supported instructions (in machine code):
+
+![](.github/instructions.png)
+
 ## License
 
 Licensed under MIT license.
