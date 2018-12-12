@@ -8,7 +8,6 @@ package main
 import (
 	"fmt"
 	"os"
-	"time"
 
 	"github.com/karimsa/basic/clock"
 	"github.com/karimsa/basic/program"
@@ -16,11 +15,11 @@ import (
 
 func main() {
 	if len(os.Args) != 2 {
-		fmt.Printf("usage: boot <program>\n")
+		fmt.Println("usage: boot <program>")
 		return
 	}
 
-	p, err := program.ReadProgram(os.Args[1])
+	p, err := program.ReadProgram(os.Args[len(os.Args)-1])
 	if err != nil {
 		fmt.Printf("Failed to read program: %s\n", err.Error())
 		return
@@ -29,7 +28,6 @@ func main() {
 	p.Load()
 
 	for {
-		go clock.Tick()
-		<-time.After(1 * time.Second)
+		clock.Tick()
 	}
 }
