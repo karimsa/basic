@@ -15,6 +15,8 @@ import (
 )
 
 func Tick() {
+	control.Tick()
+
 	if debug.Clock {
 		fmt.Println("-------------------")
 		fmt.Printf("before clock tick:\n")
@@ -26,7 +28,6 @@ func Tick() {
 
 	data.RegTick()
 	data.ALUTick()
-	control.Tick()
 	sc.Tick()
 
 	if debug.Clock {
