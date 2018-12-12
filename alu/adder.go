@@ -5,7 +5,11 @@
 
 package alu
 
-import "fmt"
+import (
+	"fmt"
+
+	"github.com/karimsa/basic/debug"
+)
 
 const (
 	signMask int16 = -32768
@@ -14,7 +18,9 @@ const (
 func fullAdder(left int16, right int16) (int16, bool) {
 	sum16 := left + right
 
-	fmt.Printf("sign(%d) => %d\n", left, left&signMask)
+	if debug.ALU {
+		fmt.Printf("sign(%d) => %d\n", left, left&signMask)
+	}
 
 	// if the operands have the same sign but the sum has a different one, there was an overflow
 	if (left&signMask) == (right&signMask) && (left&signMask) != (sum16&signMask) {
