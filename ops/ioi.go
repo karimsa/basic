@@ -7,20 +7,20 @@ package ops
 
 const (
 	// INP inputs a character into AC
-	INP uint16 = 0xF800
+	INP uint16 = 0x0800
 
 	// UT outputs a character from the AC
-	UT = 0xF400
+	UT = 0x0400
 
 	// SKI skips next instruction on input flag
-	SKI = 0xF200
+	SKI = 0x0200
 
 	// SKO skips next instruction on output flag
-	SKO = 0xF100
+	SKO = 0x0100
 
 	// ION turns on the interrupt
-	ION = 0xF080
+	ION = 0x0080
 
 	// IOP turns off the interupt
-	IOP = 0xF040
+	IOP = 0x0040
 )

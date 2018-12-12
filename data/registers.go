@@ -9,8 +9,8 @@ import (
 	"math"
 
 	"github.com/karimsa/basic/alu"
-	"github.com/karimsa/basic/ops"
 	"github.com/karimsa/basic/debug"
+	"github.com/karimsa/basic/ops"
 )
 
 type regMode uint8
@@ -155,6 +155,12 @@ func ReadIR() uint16 {
 // wiring for halting
 func ShouldHalt() bool {
 	return AR.buffer == ops.HLT
+}
+
+// TODO: Fuzzy about this wiring too - how does CU get the AR?
+// there is no wiring there
+func ReadAR() uint16 {
+	return AR.buffer
 }
 
 func prettyMode(m regMode) string {

@@ -6,11 +6,13 @@
 package control
 
 import (
+	"errors"
 	"fmt"
 	"os"
 
 	"github.com/karimsa/basic/data"
 	"github.com/karimsa/basic/debug"
+	"github.com/karimsa/basic/ops"
 	"github.com/karimsa/basic/sc"
 )
 
@@ -30,7 +32,7 @@ const (
 // pulse
 var (
 	op uint8
-	I uint8
+	I  uint8
 )
 
 func Tick() {
@@ -70,12 +72,82 @@ func Tick() {
 
 	case 3:
 		if op == 7 {
-			if data.ShouldHalt() {
-				fmt.Println("Halting")
-				os.Exit(0)
+			if I == 1 {
+				if debug.Control {
+					fmt.Println("IOI selected")
+				}
+
+				switch data.ReadAR() {
+				case ops.INP:
+					panic(errors.New("No input device is attached"))
+
+				// OUTR <- AC
+				case ops.UT:
+					data.BusSelect(data.OUTR)
+					data.OUTR.Load()
+
+				// SKI skips next instruction on input flag
+				case ops.SKI:
+					// ???
+
+				// SKO skips next instruction on output flag
+				case ops.SKO:
+					// ???
+
+				// ION turns on the interrupt
+				case ops.ION:
+					// ???
+
+				// IOP turns off the interupt
+				case ops.IOP:
+					// ???
+				}
 			} else {
+				if debug.Control {
+					fmt.Println("RRI selected")
+				}
+
+				switch data.ReadAR() {
+				case ops.CLA:
+					data.AC.Clr()
+
+				case ops.CLE:
+					data.E.Clr()
+
+				case ops.CMA:
+					// ???
+
+				case ops.CME:
+					// ???
+
+				case ops.CIR:
+					// ???
+
+				case ops.CIL:
+					// ???
+
+				case ops.INC:
+					data.AC.Incr()
+
+				case ops.SPA:
+					// ???
+
+				case ops.SNA:
+					// ???
+
+				case ops.SZA:
+					// ???
+
+				case ops.SZE:
+					// ???
+
+				case ops.HLT:
+					fmt.Println("Halting")
+					os.Exit(0)
+				}
+
 				// TODO: transfer the instruction to the ALU
-				sc.Select(sc.CLR)
+				// sc.Select(sc.CLR)
 			}
 		} else {
 			if debug.Control {
