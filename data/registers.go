@@ -132,8 +132,8 @@ func RegTick() {
 		// OUTR is hard-wired to the output device, in this case, the
 		// tty
 		if reg == OUTR && reg.mode == load {
-			if debug.Any {
-				fmt.Printf("OUT: %s\n", string(byte(OUTR.buffer)))
+			if debug.Register {
+				fmt.Printf("OUT: %#v ('%s')\n", OUTR.buffer, string(byte(OUTR.buffer)))
 			} else {
 				fmt.Printf(string(byte(OUTR.buffer)))
 			}
