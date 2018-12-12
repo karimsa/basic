@@ -1,4 +1,4 @@
-// cpu/registers.go
+// data/registers.go
 //
 // Copyright (C) 2018-present Karim Alibhai. All rights reserved
 
@@ -7,6 +7,10 @@ package data
 import (
 	"fmt"
 	"math"
+
+	"github.com/karimsa/basic/alu"
+	"github.com/karimsa/basic/ops"
+	"github.com/karimsa/basic/debug"
 )
 
 type regMode uint8
@@ -36,7 +40,7 @@ func (r *Register) Load() {
 	r.mode = load
 }
 
-func (r *Register) Inr() {
+func (r *Register) Incr() {
 	r.mode = inr
 }
 
@@ -103,21 +107,12 @@ var (
 	}
 )
 
-func RegTick() {
-	busValue := BusRead()
-
+func ALUTick() {
 	// though the clock is not actually connected to
 	// the ALU, the shifting of the data in the registers
 	// will cause the ALU content to change and therefore
 	// it is a part of the 'RegTick' process
-	ac, e := aluTick()
-
-	for _, reg := range busRegisters {
-		reg.tick(busValue)
-
-		// auto-reset after pulse
-		reg.mode = none
-	}
+	ac, e := alu.Read()
 
 	// manually tick on the AC - since it has selector
 	// pins, we just tick and not set
@@ -126,6 +121,40 @@ func RegTick() {
 
 	// set the value of E - it is not selected, always loads
 	E.set(e)
+}
+
+func RegTick() {
+	busValue := BusRead()
+
+	for _, reg := range busRegisters {
+		reg.tick(busValue)
+
+		// OUTR is hard-wired to the output device, in this case, the
+		// tty
+		if reg == OUTR && reg.mode == load {
+			if debug.Any {
+				fmt.Printf("OUT: %s\n", string(byte(OUTR.buffer)))
+			} else {
+				fmt.Printf(string(byte(OUTR.buffer)))
+			}
+		}
+
+		// auto-reset after pulse
+		reg.mode = none
+	}
+}
+
+// IR is readable by the control unit - since it is hard-wired
+// to both the CU & the bus
+func ReadIR() uint16 {
+	return IR.buffer
+}
+
+// ShouldHalt signals the CU whether a halt instruction is
+// loaded into the AR - mostly because I'm a bit fuzzy about the
+// wiring for halting
+func ShouldHalt() bool {
+	return AR.buffer == ops.HLT
 }
 
 func prettyMode(m regMode) string {

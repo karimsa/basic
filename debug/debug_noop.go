@@ -9,6 +9,8 @@ package debug
 const (
 	Register = false
 	Clock    = false
-	CPU      = false
+	Control      = false
 	ALU      = false
+	SC = false
+	Any = false
 )

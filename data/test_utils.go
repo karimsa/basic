@@ -9,7 +9,7 @@ package data
 
 func (r *Register) TestSet(value uint16) {
 	r.set(value)
-	aluTick()
+	ALUTick()
 }
 
 func (r *Register) TestRead() uint16 {

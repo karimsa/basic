@@ -22,7 +22,7 @@ func TestTransfer(t *testing.T) {
 	data.DR.Load()
 
 	// 2) Update bus mux to read AC
-	data.BusSelect(0x4)
+	data.BusSelect(data.AC)
 
 	// AC should have its own value
 	if data.AC.TestRead() != 0x35ac {
@@ -58,7 +58,7 @@ func TestSwap(t *testing.T) {
 	data.DR.Load()
 
 	// 2) Update bus mux to read AC
-	data.BusSelect(0x4)
+	data.BusSelect(data.AC)
 
 	// AC should have its own value
 	if data.AC.TestRead() != initAC {

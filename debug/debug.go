@@ -7,9 +7,14 @@
 
 package debug
 
+// change these for debugging
 const (
 	Register = true
 	Clock    = true
-	CPU      = true
+	Control      = true
 	ALU      = true
+	SC = false
 )
+
+// do not change this
+const Any = true

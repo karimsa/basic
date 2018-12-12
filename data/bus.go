@@ -5,12 +5,22 @@
 
 package data
 
+import (
+	"fmt"
+)
+
 var (
-	bus uint16
+	bus    uint16
+	sel *Register
+	Memory *Register
 )
 
 func BusRead() uint16 {
 	return bus
+}
+
+func BusDump() {
+	fmt.Printf("Bus: %#v (select: %#v)\n", bus, sel)
 }
 
 // BusSelect changes the mux inputs for the mux
@@ -18,27 +28,12 @@ func BusRead() uint16 {
 // into the bus - since the bus is not connected to the clock,
 // it does not tick and instead simply emit the content
 // instantly
-func BusSelect(loc uint8) {
-	switch loc {
-	case 1:
-		bus = AR.buffer
+func BusSelect(reg *Register) {
+	sel = reg
 
-	case 2:
-		bus = PC.buffer
-
-	case 3:
-		bus = DR.buffer
-
-	case 4:
-		bus = AC.buffer
-
-	case 5:
-		bus = IR.buffer
-
-	case 6:
-		bus = TR.buffer
-
-	case 7:
+	if reg == Memory {
 		bus = memory[AR.buffer]
+	} else {
+		bus = reg.buffer
 	}
 }

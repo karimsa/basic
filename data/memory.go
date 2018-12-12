@@ -5,6 +5,8 @@
 package data
 
 import (
+	"fmt"
+
 	"github.com/karimsa/basic/constants"
 )
 
@@ -29,14 +31,12 @@ func UnsafeMemWrite(pos int, word uint16) {
 // Select changes the memory inputs to either load a word
 // from the bus or switches the bus input to read off the
 // memory (which simulates a write into the bus)
-func Select(mode MemMode) {
+func MemSelect(mode MemMode) {
 	if mode == MemRead {
-		BusSelect(7)
-	} else {
 		memory[AR.buffer] = BusRead()
 	}
 }
 
-func Dump() []uint16 {
-	return memory
+func MemDump() {
+	fmt.Printf("Memory[0:5] => %#v\n", memory[0:5])
 }

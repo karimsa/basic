@@ -11,7 +11,7 @@ import (
 
 func TestCounter(t *testing.T) {
 	for i := 0; i < 32; i++ {
-		n := GetSC()
+		n := Read()
 		Tick()
 
 		if n != i%16 {
@@ -20,7 +20,7 @@ func TestCounter(t *testing.T) {
 	}
 
 	for i := 0; i < 5; i++ {
-		n := GetSC()
+		n := Read()
 		Tick()
 
 		if n != i {
@@ -32,7 +32,7 @@ func TestCounter(t *testing.T) {
 	Tick()
 
 	for i := 0; i < 5; i++ {
-		n := GetSC()
+		n := Read()
 		Tick()
 
 		if n != i {
