@@ -11,7 +11,8 @@ import (
 
 func TestCounter(t *testing.T) {
 	for i := 0; i < 32; i++ {
-		n := <-SC
+		n := GetSC()
+		Tick()
 
 		if n != i%16 {
 			t.Fatalf("Expected %d, got %d\n", i%16, n)
@@ -19,16 +20,21 @@ func TestCounter(t *testing.T) {
 	}
 
 	for i := 0; i < 5; i++ {
-		n := <-SC
+		n := GetSC()
+		Tick()
+
 		if n != i {
 			t.Fatalf("Expected %d, got %d\n", i, n)
 		}
 	}
 
-	Reset()
+	Select(CLR)
+	Tick()
 
 	for i := 0; i < 5; i++ {
-		n := <-SC
+		n := GetSC()
+		Tick()
+
 		if n != i {
 			t.Fatalf("Expected %d, got %d\n", i, n)
 		}

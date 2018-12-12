@@ -6,30 +6,39 @@
 package sc
 
 var (
-	sc = make(chan int)
-
 	min  = 0
 	curr = 0
 	max  = 15
+
+	mode SCMode = INR
 )
 
-// SC is a counter+decoder that will emit decimal values
-// between 0 and 15
-var SC <-chan int = sc
+type SCMode int
 
-func Reset() {
-	curr = -1
+const (
+	INR SCMode = iota
+	CLR
+)
+
+func Select(m SCMode) {
+	mode = m
 }
 
-func init() {
-	go func() {
-		for {
-			sc <- curr
+func GetSC() int {
+	return curr
+}
 
-			curr++
-			if curr > max {
-				curr = min
-			}
+func Tick() {
+	switch mode {
+	case INR:
+		curr++
+		if curr > max {
+			curr = min
 		}
-	}()
+
+	case CLR:
+		curr = 0
+	}
+
+	mode = INR
 }
