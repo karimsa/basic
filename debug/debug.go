@@ -11,9 +11,9 @@ package debug
 const (
 	Register = true
 	Clock    = true
-	Control      = true
+	Control  = true
 	ALU      = true
-	SC = false
+	SC       = false
 )
 
 // do not change this

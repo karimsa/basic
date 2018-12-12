@@ -9,8 +9,8 @@ package debug
 const (
 	Register = false
 	Clock    = false
-	Control      = false
+	Control  = false
 	ALU      = false
-	SC = false
-	Any = false
+	SC       = false
+	Any      = false
 )

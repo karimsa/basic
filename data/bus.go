@@ -11,7 +11,7 @@ import (
 
 var (
 	bus    uint16
-	sel *Register
+	sel    *Register
 	Memory *Register
 )
 
