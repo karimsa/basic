@@ -112,7 +112,7 @@ func ALUTick() {
 	// the ALU, the shifting of the data in the registers
 	// will cause the ALU content to change and therefore
 	// it is a part of the 'RegTick' process
-	ac, e := alu.Read()
+	ac, e := alu.Read(DR.buffer, uint8(INPR.buffer), AC.buffer)
 
 	// manually tick on the AC - since it has selector
 	// pins, we just tick and not set
