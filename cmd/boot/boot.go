@@ -6,8 +6,8 @@
 package main
 
 import (
-	"os"
 	"fmt"
+	"os"
 	"time"
 
 	"github.com/karimsa/basic/clock"
@@ -30,6 +30,6 @@ func main() {
 
 	for {
 		go clock.Tick()
-		<-time.After(1*time.Second)
+		<-time.After(1 * time.Second)
 	}
 }
