@@ -32,14 +32,14 @@ func test(fpath string, t *testing.T) {
 }
 
 func TestProgramWriting(t *testing.T) {
-	program, err := NewProgram("../test/fixtures/test2.out")
+	program, err := WriteProgram("../test/fixtures/test2.out")
 	if err != nil {
 		t.Fatalf(err.Error())
 	}
 
-	program.writeWord(0x7800)
-	program.writeWord(0xc152)
-	program.close()
+	program.SetWord(0, 0x7800)
+	program.SetWord(1, 0xc152)
+	program.Flush()
 
 	test("../test/fixtures/test2.out", t)
 }

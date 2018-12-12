@@ -11,6 +11,7 @@ const (
 	Clock    = false
 	Control  = false
 	ALU      = false
+	ASM      = false
 	SC       = false
 	Any      = false
 )

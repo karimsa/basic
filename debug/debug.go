@@ -13,6 +13,7 @@ const (
 	Clock    = true
 	Control  = true
 	ALU      = true
+	ASM      = true
 	SC       = false
 )
 
