@@ -163,6 +163,18 @@ func ReadAR() uint16 {
 	return AR.buffer
 }
 
+// CompE complements E - does not wait till the clock
+// pulse but it disables any ops on E for the pulse
+func CompE() {
+	if E.buffer == 1 {
+		E.buffer = 0
+	} else {
+		E.buffer = 1
+	}
+
+	E.mode = none
+}
+
 func prettyMode(m regMode) string {
 	switch m {
 	case none:
