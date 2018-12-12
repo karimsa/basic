@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/karimsa/basic/alu"
 	"github.com/karimsa/basic/data"
 	"github.com/karimsa/basic/debug"
 	"github.com/karimsa/basic/ops"
@@ -31,8 +32,9 @@ const (
 // will not be used until the next clock
 // pulse
 var (
-	op uint8
-	I  uint8
+	op   uint8
+	I    uint8
+	halt bool
 )
 
 func Tick() {
@@ -40,7 +42,14 @@ func Tick() {
 		fmt.Printf("SC => %d\n", sc.Read())
 	}
 
-	switch sc.Read() {
+	if halt {
+		fmt.Println("Halting")
+		os.Exit(0)
+	}
+
+	T := sc.Read()
+
+	switch T {
 	case 0:
 		// AR <- PC
 		data.AR.Load()
@@ -83,8 +92,9 @@ func Tick() {
 
 				// OUTR <- AC
 				case ops.UT:
-					data.BusSelect(data.OUTR)
-					data.OUTR.Load()
+					data.BusSelect(data.AC) // (bus) <- AC
+					data.OUTR.Load()        // OUTR <- (bus)
+					sc.Select(sc.CLR)       // SC <- 0
 
 				// SKI skips next instruction on input flag
 				case ops.SKI:
@@ -109,25 +119,35 @@ func Tick() {
 
 				switch data.ReadAR() {
 				case ops.CLA:
-					data.AC.Clr()
+					data.AC.Clr()     // AC <- 0
+					sc.Select(sc.CLR) // SC <- 0
 
 				case ops.CLE:
-					data.E.Clr()
+					data.E.Clr()      // E <- 0
+					sc.Select(sc.CLR) // SC <- 0
 
 				case ops.CMA:
-					// ???
+					data.AC.Load()       // AC <- (alu)
+					alu.Select(alu.COMP) // alu select COMP
+					sc.Select(sc.CLR)    // SC <- 0
 
 				case ops.CME:
-					// ???
+					data.CompE()      // E <- E'
+					sc.Select(sc.CLR) // SC <- 0
 
 				case ops.CIR:
-					// ???
+					data.AC.Load()       // AC <- (alu)
+					alu.Select(alu.ASHR) // alu select SHR
+					sc.Select(sc.CLR)    // SC <- 0
 
 				case ops.CIL:
-					// ???
+					data.AC.Load()       // AC <- (alu)
+					alu.Select(alu.ASHL) // alu select SHL
+					sc.Select(sc.CLR)    // SC <- 0
 
 				case ops.INC:
-					data.AC.Incr()
+					data.AC.Incr()    // AC <- AC + 1
+					sc.Select(sc.CLR) // SC <- 0
 
 				case ops.SPA:
 					// ???
@@ -142,12 +162,8 @@ func Tick() {
 					// ???
 
 				case ops.HLT:
-					fmt.Println("Halting")
-					os.Exit(0)
+					halt = true
 				}
-
-				// TODO: transfer the instruction to the ALU
-				// sc.Select(sc.CLR)
 			}
 		} else {
 			if debug.Control {
@@ -159,6 +175,58 @@ func Tick() {
 				data.AR.Load()
 				data.BusSelect(data.Memory)
 			}
+		}
+
+	case 4:
+		// DR <- M[AR]
+		if op != 7 {
+			data.BusSelect(data.Memory)
+			data.DR.Load()
+		}
+
+	// MRI execution
+	default:
+		switch op {
+		// AC <- DR & AC
+		case ops.AND:
+			data.AC.Load()      // AC <- (alu)
+			alu.Select(alu.AND) // alu select AND
+			sc.Select(sc.CLR)   // SC <- 0
+
+		// AC <- DR + AC
+		case ops.ADD:
+			data.AC.Load()      // AC <- (alu)
+			alu.Select(alu.AND) // alu select AND
+			sc.Select(sc.CLR)   // SC <- 0
+
+		// AC <- M[AR]
+		case ops.LDA:
+			if T == 5 {
+				// DR <- M[AR]
+				data.DR.Load()
+				data.BusSelect(data.Memory)
+			} else if T == 6 {
+				// AC <- DR
+				alu.Select(alu.TR)
+				data.AC.Load()
+			}
+
+		// M[AR] <- AC
+		case ops.STA:
+			data.MemSelect(data.MemRead)
+			data.BusSelect(data.AC)
+
+		case ops.BUN:
+			break
+
+		case ops.BSA:
+			break
+
+		case ops.ISZ:
+			break
+
+		default:
+			panic(fmt.Errorf("Unknown MRI instruction: %#v", data.ReadAR()))
 		}
 	}
 }

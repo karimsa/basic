@@ -6,11 +6,11 @@
 package ops
 
 const (
-	AND uint16 = 0x0000
-	ADD        = 0x1000
-	LDA        = 0x2000
-	STA        = 0x3000
-	BUN        = 0x4000
-	BSA        = 0x5000
-	ISZ        = 0x6000
+	AND uint8 = 0x0
+	ADD uint8 = 0x1
+	LDA uint8 = 0x2
+	STA uint8 = 0x3
+	BUN uint8 = 0x4
+	BSA uint8 = 0x5
+	ISZ uint8 = 0x6
 )
