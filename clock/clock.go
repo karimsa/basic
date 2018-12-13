@@ -26,6 +26,7 @@ func Tick() {
 		fmt.Println("-------------------")
 	}
 
+	data.MemTick()
 	data.RegTick()
 	data.ALUTick()
 	sc.Tick()

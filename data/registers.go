@@ -10,7 +10,6 @@ import (
 
 	"github.com/karimsa/basic/alu"
 	"github.com/karimsa/basic/debug"
-	"github.com/karimsa/basic/ops"
 )
 
 type regMode uint8
@@ -144,23 +143,12 @@ func RegTick() {
 	}
 }
 
-// IR is readable by the control unit - since it is hard-wired
-// to both the CU & the bus
-func ReadIR() uint16 {
-	return IR.buffer
-}
 
-// ShouldHalt signals the CU whether a halt instruction is
-// loaded into the AR - mostly because I'm a bit fuzzy about the
-// wiring for halting
-func ShouldHalt() bool {
-	return AR.buffer == ops.HLT
-}
-
-// TODO: Fuzzy about this wiring too - how does CU get the AR?
-// there is no wiring there
-func ReadAR() uint16 {
-	return AR.buffer
+// ReadRegister allows the CU to read register contents - in reality,
+// there would be combinatorial circuits between the registers and the
+// CU to do this
+func ReadRegister(r *Register) uint16 {
+	return r.buffer
 }
 
 // CompE complements E - does not wait till the clock

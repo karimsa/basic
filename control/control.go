@@ -66,7 +66,7 @@ func Tick() {
 	case 2:
 		// "decode" op from IR(12-14) - will just
 		// and & shift it to get the 12-bits as decimal
-		op = uint8((data.ReadIR() & mid) >> 12)
+		op = uint8((data.ReadRegister(data.IR) & mid) >> 12)
 
 		// AR <- IR(0-11)
 		// no magic here to get rid of the MSBs - those
@@ -77,7 +77,7 @@ func Tick() {
 
 		// I <- IR(15)
 		// shifted down to single bit
-		I = uint8((data.ReadIR() & upper) >> 15)
+		I = uint8((data.ReadRegister(data.IR) & upper) >> 15)
 
 	case 3:
 		if op == 7 {
@@ -86,7 +86,7 @@ func Tick() {
 					fmt.Println("IOI selected")
 				}
 
-				switch data.ReadAR() {
+				switch data.ReadRegister(data.AR) {
 				case ops.INP:
 					panic(errors.New("No input device is attached"))
 
@@ -98,26 +98,29 @@ func Tick() {
 
 				// SKI skips next instruction on input flag
 				case ops.SKI:
-					// ???
+					panic(errors.New("instruction not implemented"))
 
 				// SKO skips next instruction on output flag
 				case ops.SKO:
-					// ???
+					panic(errors.New("instruction not implemented"))
 
 				// ION turns on the interrupt
 				case ops.ION:
-					// ???
+					panic(errors.New("instruction not implemented"))
 
 				// IOP turns off the interupt
 				case ops.IOP:
-					// ???
+					panic(errors.New("instruction not implemented"))
+
+				default:
+					panic(fmt.Errorf("Unknown IOI operation at %#v: %#v", data.ReadRegister(data.PC)-1, data.ReadRegister(data.AR)))
 				}
 			} else {
 				if debug.Control {
 					fmt.Println("RRI selected")
 				}
 
-				switch data.ReadAR() {
+				switch data.ReadRegister(data.AR) {
 				case ops.CLA:
 					data.AC.Clr()     // AC <- 0
 					sc.Select(sc.CLR) // SC <- 0
@@ -150,19 +153,23 @@ func Tick() {
 					sc.Select(sc.CLR) // SC <- 0
 
 				case ops.SPA:
-					// ???
+					panic(errors.New("instruction not implemented"))
 
 				case ops.SNA:
-					// ???
+					panic(errors.New("instruction not implemented"))
 
 				case ops.SZA:
-					// ???
+					panic(errors.New("instruction not implemented"))
 
 				case ops.SZE:
-					// ???
+					panic(errors.New("instruction not implemented"))
 
 				case ops.HLT:
 					halt = true
+					sc.Select(sc.CLR) // SC <- 0
+
+				default:
+					panic(fmt.Errorf("Unknown RRI instruction: %#v", data.ReadRegister(data.AR)))
 				}
 			}
 		} else {
@@ -182,6 +189,8 @@ func Tick() {
 		if op != 7 {
 			data.BusSelect(data.Memory)
 			data.DR.Load()
+		} else {
+			panic(errors.New("Reached T4 for RRI/IOI execution cycles - should not happen"))
 		}
 
 	// MRI execution
@@ -199,34 +208,80 @@ func Tick() {
 			alu.Select(alu.AND) // alu select AND
 			sc.Select(sc.CLR)   // SC <- 0
 
-		// AC <- M[AR]
+		// AC <- DR
 		case ops.LDA:
-			if T == 5 {
-				// DR <- M[AR]
-				data.DR.Load()
-				data.BusSelect(data.Memory)
-			} else if T == 6 {
-				// AC <- DR
-				alu.Select(alu.TR)
-				data.AC.Load()
-			}
+			data.AC.Load() // AC <- (alu)
+			alu.Select(alu.TR) // alu select TR
+			sc.Select(sc.CLR)   // SC <- 0
 
 		// M[AR] <- AC
 		case ops.STA:
 			data.MemSelect(data.MemRead)
 			data.BusSelect(data.AC)
 
+		// PC <- AR
 		case ops.BUN:
-			break
+			data.PC.Load()          // PC <- (bus)
+			data.BusSelect(data.AR) // (bus) <- AR
+			sc.Select(sc.CLR)       // SC <- 0
 
+		// BSA:
+		//   Save current address into M[AR]
+		//   Branch to M[AR]+1
 		case ops.BSA:
-			break
+			if debug.Control {
+				fmt.Printf("BSA\n")
+			}
+
+			switch T {
+			// TR <- M[AR]
+			case 5:
+				data.TR.Load() // TR <- (bus)
+				data.BusSelect(data.AR) // (bus) <- M[AR]
+
+			// TR <- TR + 1, M[AR] <- PC
+			case 6:
+				data.TR.Incr() // TR <- TR + 1
+				data.MemSelect(data.MemRead) // M[AR] <- (bus)
+				data.BusSelect(data.PC) // (bus) <- PC
+
+			// JMP to TR
+			case 7:
+				data.PC.Load()
+				data.BusSelect(data.TR)
+				sc.Select(sc.CLR)
+
+			default:
+				panic(fmt.Errorf("BSA reached T%d", T))
+			}
 
 		case ops.ISZ:
-			break
+			switch T {
+			// M[AR] <- M[AR] + 1
+			case 5:
+				data.BusSelect(data.Memory) // (bus) <- M[AR]
+				data.TR.Load()              // TR <- (bus)
+
+			case 6:
+				data.TR.Incr() // TR <- TR + 1
+
+			case 7:
+				data.BusSelect(data.TR) // (bus) <- TR
+				data.MemSelect(data.MemRead) // M[AR] <- (bus)
+
+			case 8:
+				// If M[AR] is zero: skip
+				if data.ReadRegister(data.TR) == 0x0000 {
+					data.PC.Incr()
+				}
+				sc.Select(sc.CLR)
+
+			default:
+				panic(fmt.Errorf("Reached T%d in ISZ execution", T))
+			}
 
 		default:
-			panic(fmt.Errorf("Unknown MRI instruction: %#v", data.ReadAR()))
+			panic(fmt.Errorf("Unknown MRI instruction: %#v", data.ReadRegister(data.AR)))
 		}
 	}
 }
