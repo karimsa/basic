@@ -8,7 +8,31 @@ It is capable of executing the simple instructions on a 16-bit architecture cons
 
 Grab it via `go get github.com/karimsa/basic`.
 
-*More instructions coming.*
+### Compiling & running
+
+`hello.s`:
+
+```asm
+ORG 0
+  LDA H
+  UT
+  LDA I
+  UT
+  LDA LF
+  UT
+  HLT
+
+H: HEX 68
+I: HEX 65
+LF: HEX 0A
+```
+
+```shell
+$ go run ./cmd/asm/asm.go hello.s hello.out
+$ go run ./cmd/boot/boot.go hello.out
+hi
+Halting
+```
 
 ## Architecture
 
