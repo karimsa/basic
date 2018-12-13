@@ -12,6 +12,7 @@ import (
 
 var (
 	memory = make([]uint16, constants.MemorySize)
+	DumpSize = 20
 )
 
 type MemMode uint8
@@ -38,5 +39,5 @@ func MemSelect(mode MemMode) {
 }
 
 func MemDump() {
-	fmt.Printf("Memory[0:5] => %#v\n", memory[0:5])
+	fmt.Printf("Memory[0:%d] => %#v\n", DumpSize, memory[0:DumpSize])
 }

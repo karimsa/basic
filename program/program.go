@@ -68,11 +68,16 @@ func (p *Program) Load() {
 	for {
 		word, ok := p.readWord()
 		if !ok {
-			return
+			break
 		}
 
 		data.UnsafeMemWrite(addr, word)
 		addr++
+	}
+
+	data.DumpSize = addr
+	if debug.Any {
+		fmt.Printf("Loaded program of %d words\n", data.DumpSize)
 	}
 }
 
