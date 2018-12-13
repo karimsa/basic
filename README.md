@@ -1,8 +1,11 @@
 # basic
 
-Basic computer from CEG2136. Created by me in an attempt to study for my exam by coding out the content.
+Pure go implementation of the Mano machine.
 
-It is capable of executing the simple instructions on a 16-bit architecture consisting of an ALU + CU and a data bus. It is similar to our lab 4 assignment but it is written in go rather than with the Altera Quartus platform.
+Created by me for fun / in order to understand the internals for my CEG2136 exam (probably an overkill
+study strategy but definitely fun).
+
+It is capable of executing the simple instructions on a 16-bit architecture consisting of an ALU + CU and a data bus.
 
 ## Usage
 
