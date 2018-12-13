@@ -50,7 +50,7 @@ func ReadProgram(fpath string) (*Program, error) {
 }
 
 func WriteProgram(fpath string) (*ProgramWriter, error) {
-	fd, err := os.OpenFile(fpath, os.O_CREATE|os.O_WRONLY, 0755)
+	fd, err := os.OpenFile(fpath, os.O_CREATE|os.O_EXCL|os.O_WRONLY, 0755)
 	if err != nil {
 		return nil, err
 	}
