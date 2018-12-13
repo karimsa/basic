@@ -10,7 +10,6 @@ ORG 0
   UT
   LDA L
   UT
-  LDA L
   UT
   LDA O
   UT
